@@ -5,13 +5,21 @@
   <meta charset="UTF-8" />
   <script>
     if (window.location.pathname === '/location' || window.location.pathname === '/location/') {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || navigator.vendor || window.opera);
       var isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || window.opera);
-      var MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
-      var fallbackUrl = encodeURIComponent(MAPS_LINK);
-      var mapUrl = isAndroid 
-        ? 'intent://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=' + fallbackUrl + ';end;' 
-        : MAPS_LINK;
-      window.location.replace(mapUrl);
+      
+      if (isAndroid) {
+        // Dùng geo: mở thẳng ứng dụng bản đồ gốc của máy
+        window.location.replace('geo:10.5950928,106.5558157?q=10.5950928,106.5558157(Dia%20Diem%20To%20Chuc)');
+      } else if (isIOS) {
+        // Ưu tiên Google Maps iOS, nếu không có thì fallback qua Apple Maps
+        window.location.replace('comgooglemaps://?q=10.5950928,106.5558157');
+        setTimeout(function() {
+           window.location.replace('maps://?q=10.5950928,106.5558157');
+        }, 300);
+      } else {
+        window.location.replace('https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7');
+      }
     }
   </script>
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />

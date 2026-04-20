@@ -6,14 +6,19 @@ const ADDRESS = 'HHW5+29J Cần Đước, Long An, Vietnam';
 
 // Redirect ngay lập tức khi file JS được parse
 if (typeof window !== 'undefined') {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || navigator.vendor || (window as any).opera);
     const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || (window as any).opera);
-    const fallbackUrl = encodeURIComponent(MAPS_LINK);
-    const mapUrl = isAndroid 
-        ? `intent://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${fallbackUrl};end;` 
-        : MAPS_LINK;
-        
-    // Thay vì load hết UI, chuyển luôn không chờ đợi React render
-    window.location.replace(mapUrl);
+    
+    if (isAndroid) {
+        window.location.replace('geo:10.5950928,106.5558157?q=10.5950928,106.5558157(Dia%20Diem%20To%20Chuc)');
+    } else if (isIOS) {
+        window.location.replace('comgooglemaps://?q=10.5950928,106.5558157');
+        setTimeout(() => {
+           window.location.replace('maps://?q=10.5950928,106.5558157');
+        }, 300);
+    } else {
+        window.location.replace(MAPS_LINK);
+    }
 }
 
 export default function LocationPage() {
@@ -27,12 +32,19 @@ export default function LocationPage() {
         window.addEventListener('offline', handleOffline);
 
         if (navigator.onLine) {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || navigator.vendor || (window as any).opera);
             const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || (window as any).opera);
-            const fallbackUrl = encodeURIComponent(MAPS_LINK);
-            const mapUrl = isAndroid 
-                ? `intent://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${fallbackUrl};end;` 
-                : MAPS_LINK;
-            window.location.replace(mapUrl);
+            
+            if (isAndroid) {
+                window.location.replace('geo:10.5950928,106.5558157?q=10.5950928,106.5558157(Dia%20Diem%20To%20Chuc)');
+            } else if (isIOS) {
+                window.location.replace('comgooglemaps://?q=10.5950928,106.5558157');
+                setTimeout(() => {
+                   window.location.replace('maps://?q=10.5950928,106.5558157');
+                }, 300);
+            } else {
+                window.location.replace(MAPS_LINK);
+            }
         }
 
         return () => {
