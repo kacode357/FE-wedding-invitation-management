@@ -3,7 +3,7 @@ import { useState } from 'react';
 const PRIMARY = '#800020';
 const ADDRESS = 'HHW5+29J Cần Đước, Long An, Vietnam';
 const LANDMARK = 'Cửa Hàng VLXD Năm Hạnh, Đường tỉnh 835D';
-const MAPS_LINK = 'https://maps.app.goo.gl/zeZhd2H683iTon7r9';
+const MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
 
 function CopyButton({ text }: { text: string }) {
     const [copied, setCopied] = useState(false);
@@ -54,6 +54,28 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function LocationPage() {
+    const handleOpenApp = async (app: 'grab' | 'greensm') => {
+        try {
+            await navigator.clipboard.writeText(LANDMARK);
+            alert('Địa chỉ đã tự copy. Vui lòng vào app để dán!');
+            
+            const scheme = app === 'grab' ? 'grab://' : 'xanhsm://';
+            const start = Date.now();
+            window.location.href = scheme;
+            
+            setTimeout(() => {
+                if (Date.now() - start < 1500) {
+                    alert('Ứng dụng chưa được cài đặt trên thiết bị của bạn!');
+                }
+            }, 1000);
+        } catch (error) {
+            console.error('Lỗi khi copy:', error);
+            // Vẫn thử mở app nếu copy lỗi
+            const scheme = app === 'grab' ? 'grab://' : 'xanhsm://';
+            window.location.href = scheme;
+        }
+    };
+
     return (
         <div
             className="min-h-screen flex flex-col"
@@ -109,11 +131,14 @@ export default function LocationPage() {
 
                 {/* Đi xe công nghệ */}
                 <Card>
-                    <SectionLabel>Đặt xe Grab / Xanh SM</SectionLabel>
+                    <SectionLabel>Đặt xe Grab / Green SM</SectionLabel>
 
                     {/* App logos */}
                     <div className="flex gap-2.5 mb-3">
-                        <div className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100">
+                        <div 
+                            onClick={() => handleOpenApp('grab')}
+                            className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
+                        >
                             <img
                                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCb7jfvtaiulITOpBWFnFOKODijKJySTagwQ&s"
                                 alt="Grab"
@@ -124,14 +149,17 @@ export default function LocationPage() {
                                 <p className="text-gray-400 text-[11px]">GrabCar / Bike</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100">
+                        <div 
+                            onClick={() => handleOpenApp('greensm')}
+                            className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
+                        >
                             <img
                                 src="https://st.download.com.vn/data/image/2023/04/08/taxi-xanh-sm-200.png"
-                                alt="Xanh SM"
+                                alt="Green SM"
                                 className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
                             />
                             <div>
-                                <p className="font-bold text-gray-800 text-xs">Xanh SM</p>
+                                <p className="font-bold text-gray-800 text-xs">Green SM</p>
                                 <p className="text-gray-400 text-[11px]">Taxi / Xe máy</p>
                             </div>
                         </div>
