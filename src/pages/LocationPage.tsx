@@ -1,9 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
+
+export default function LocationPage() {
+    useEffect(() => {
+        window.location.href = MAPS_LINK;
+    }, []);
+
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ fontFamily: "'Be Vietnam Pro', sans-serif", background: '#fdf8f8' }}>
+            <div className="w-10 h-10 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-[#800020] font-semibold">Đang chuyển hướng sang bản đồ...</p>
+            <a href={MAPS_LINK} className="text-gray-500 text-sm mt-4 underline">Chạm vào đây nếu trình duyệt không tự chuyển hướng</a>
+        </div>
+    );
+}
+
+/* ========================================================
+   DƯỚI ĐÂY LÀ ĐOẠN CODE LOGIC CŨ ĐƯỢC COMMENT LẠI BẢO LƯU 
+   ========================================================
 
 const PRIMARY = '#800020';
 const ADDRESS = 'HHW5+29J Cần Đước, Long An, Vietnam';
 const LANDMARK = 'Cửa Hàng VLXD Năm Hạnh, Đường tỉnh 835D';
-const MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
 
 function CopyButton({ text }: { text: string }) {
     const [copied, setCopied] = useState(false);
@@ -53,7 +72,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     );
 }
 
-export default function LocationPage() {
+export function LocationPageOld() {
     const [popup, setPopup] = useState<{show: boolean, appType: 'grab' | 'greensm' | null}>({show: false, appType: null});
 
     const handleAppSelect = async (app: 'grab' | 'greensm') => {
@@ -127,7 +146,6 @@ export default function LocationPage() {
             className="min-h-screen flex flex-col"
             style={{ fontFamily: "'Be Vietnam Pro', sans-serif", background: '#fdf8f8' }}
         >
-            {/* Popup Thông Báo */}
             {popup.show && (
                 <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl p-5 w-full max-w-sm text-center shadow-xl">
@@ -160,7 +178,6 @@ export default function LocationPage() {
                     </div>
                 </div>
             )}
-            {/* ── Header ── */}
             <header className="sticky top-0 z-50" style={{ background: `linear-gradient(90deg, ${PRIMARY}, #c0003a)` }}>
                 <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -175,17 +192,13 @@ export default function LocationPage() {
                 </div>
             </header>
 
-            {/* ── Hero strip (1 dòng) ── */}
             <div className="py-5 px-4 text-center" style={{ background: `linear-gradient(180deg, ${PRIMARY}10, transparent)` }}>
                 <p className="font-bold text-lg text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis">
                     🎊 Kính mời quý khách tham dự lễ cưới
                 </p>
             </div>
 
-            {/* ── Content ── */}
             <main className="flex-1 max-w-lg mx-auto w-full px-4 pb-8 space-y-3">
-
-                {/* Địa chỉ */}
                 <Card>
                     <SectionLabel>Địa chỉ</SectionLabel>
                     <div className="flex items-start gap-2 mb-3">
@@ -208,11 +221,8 @@ export default function LocationPage() {
                     </a>
                 </Card>
 
-                {/* Đi xe công nghệ */}
                 <Card>
                     <SectionLabel>Đặt xe Grab / Green SM</SectionLabel>
-
-                    {/* App logos */}
                     <div className="flex gap-2.5 mb-3">
                         <div 
                             onClick={() => handleAppSelect('grab')}
@@ -243,8 +253,6 @@ export default function LocationPage() {
                             </div>
                         </div>
                     </div>
-
-                    {/* Mốc nhập */}
                     <p className="text-xs text-gray-500 mb-2">Nhập điểm đến:</p>
                     <div
                         className="rounded-xl px-3.5 py-3 flex items-center justify-between gap-3"
@@ -260,7 +268,6 @@ export default function LocationPage() {
                     </div>
                 </Card>
 
-                {/* Bản đồ */}
                 <Card>
                     <SectionLabel>Bản đồ</SectionLabel>
                     <div className="relative rounded-xl overflow-hidden" style={{ paddingTop: '60%' }}>
@@ -274,8 +281,8 @@ export default function LocationPage() {
                         />
                     </div>
                 </Card>
-
             </main>
         </div>
     );
 }
+*/
