@@ -119,18 +119,6 @@ export default function InvitationPage() {
                         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}>
                             <div style={{ width: 52, height: 52, borderRadius: 10, background: 'rgba(201,164,74,0.18)', border: `1.5px solid ${GOLD}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: GOLD, fontSize: 26, boxShadow: '0 0 20px rgba(201,164,74,0.3)' }}>囍</div>
                         </div>
-
-                        {/* QR Location inside back card bottom right */}
-                        <div
-                            style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 10, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)', borderRadius: 10, padding: '8px 10px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)', border: `1.5px solid ${GOLD}60`, display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer' }}
-                            onClick={(e) => { e.stopPropagation(); window.open('https://wedding-ngoc.vercel.app/location', '_blank'); }}
-                        >
-                            <img src="/QR_wedding.jpg" alt="QR Map" style={{ width: 44, height: 44, display: 'block', borderRadius: 4 }} />
-                            <div style={{ paddingRight: 4 }}>
-                                <p style={{ fontSize: 9.5, color: PRIMARY, fontWeight: 800, marginBottom: 2, letterSpacing: '0.02em' }}>📍 Chỉ đường</p>
-                                <p style={{ fontSize: 7.5, color: '#666', lineHeight: 1.3, maxWidth: 90 }}>Quét mã hoặc<br />nhấn vào đây</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
