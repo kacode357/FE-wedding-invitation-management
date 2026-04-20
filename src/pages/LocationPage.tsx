@@ -54,78 +54,69 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function LocationPage() {
-    const [popup, setPopup] = useState<{show: boolean, message: string, isError: boolean}>({show: false, message: '', isError: false});
+    const [popup, setPopup] = useState<{show: boolean, appType: 'grab' | 'greensm' | null}>({show: false, appType: null});
 
-    const handleOpenApp = async (app: 'grab' | 'greensm') => {
+    const handleAppSelect = async (app: 'grab' | 'greensm') => {
         try {
             await navigator.clipboard.writeText(LANDMARK);
-            setPopup({
-                show: true, 
-                message: 'Đã copy địa chỉ. Vui lòng mở app và dán vào mục điểm đến nhé!', 
-                isError: false
-            });
-            
-            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-            const isAndroid = /android/i.test(userAgent);
-            const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
-
-            let appUrl = '';
-            let fallbackUrl = '';
-
-            if (app === 'grab') {
-                if (isAndroid) {
-                    appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;end;';
-                } else if (isIOS) {
-                    appUrl = 'grab://open';
-                    fallbackUrl = 'https://apps.apple.com/vn/app/grab/id647268330';
-                } else {
-                    appUrl = 'https://www.grab.com/';
-                }
-            } else if (app === 'greensm') {
-                if (isAndroid) {
-                    appUrl = 'intent://open#Intent;package=vn.xanhsm.passenger;scheme=taxixanhsm;end;';
-                } else if (isIOS) {
-                    appUrl = 'taxixanhsm://';
-                    fallbackUrl = 'https://apps.apple.com/vn/app/taxi-xanh-sm/id6445525040';
-                } else {
-                    appUrl = 'https://www.xanhsm.com/';
-                }
-            }
-
-            if (isAndroid) {
-                // Android intent automatically redirects to Play Store if not installed
-                setTimeout(() => {
-                    window.location.href = appUrl;
-                }, 1500); 
-            } else if (isIOS) {
-                // iOS requires explicit checking to open App Store
-                setTimeout(() => {
-                    const start = Date.now();
-                    window.location.href = appUrl;
-
-                    setTimeout(() => {
-                        const timeElapsed = Date.now() - start;
-                        if (timeElapsed < 2500) {
-                            setPopup({
-                                show: true,
-                                message: 'Bạn chưa cài đặt ứng dụng. Đang chuyển đến App Store...',
-                                isError: true
-                            });
-                            setTimeout(() => {
-                                window.location.href = fallbackUrl;
-                            }, 1500);
-                        }
-                    }, 2000);
-                }, 1500);
-            } else {
-                setTimeout(() => {
-                    window.open(appUrl, '_blank');
-                }, 1500);
-            }
         } catch (error) {
             console.error('Lỗi khi copy:', error);
-            const scheme = app === 'grab' ? 'grab://open' : 'taxixanhsm://';
-            window.location.href = scheme;
+        }
+        setPopup({ show: true, appType: app });
+    };
+
+    const handleOpenApp = () => {
+        if (!popup.appType) return;
+        const app = popup.appType;
+        
+        // Đóng popup
+        setPopup({ show: false, appType: null });
+        
+        const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+        const isAndroid = /android/i.test(userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+
+        let appUrl = '';
+        let fallbackUrl = '';
+
+        if (app === 'grab') {
+            if (isAndroid) {
+                appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.grabtaxi.passenger;end;';
+            } else if (isIOS) {
+                appUrl = 'grab://open';
+                fallbackUrl = 'https://apps.apple.com/vn/app/grab/id647268330';
+            } else {
+                appUrl = 'https://www.grab.com/';
+            }
+        } else if (app === 'greensm') {
+            if (isAndroid) {
+                appUrl = 'intent://#Intent;package=com.gsm.customer;scheme=xanhsm;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.gsm.customer;end;';
+            } else if (isIOS) {
+                appUrl = 'xanhsm://';
+                fallbackUrl = 'https://apps.apple.com/vn/app/taxi-xanh-sm/id6445525040';
+            } else {
+                appUrl = 'https://www.taxixanhsm.vn/';
+            }
+        }
+
+        if (isAndroid) {
+            window.location.href = appUrl;
+            setTimeout(() => { window.close(); }, 1500); 
+        } else if (isIOS) {
+            const start = Date.now();
+            window.location.href = appUrl;
+            
+            setTimeout(() => {
+                const timeElapsed = Date.now() - start;
+                // Nếu app mở thành công, web bị freeze nên timeElapsed sẽ lớn hơn timeout
+                if (timeElapsed < 2500) {
+                    window.location.href = fallbackUrl;
+                } else {
+                    window.close();
+                }
+            }, 1000);
+        } else {
+            window.open(appUrl, '_blank');
         }
     };
 
@@ -138,25 +129,32 @@ export default function LocationPage() {
             {popup.show && (
                 <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl p-5 w-full max-w-sm text-center shadow-xl">
-                        <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${popup.isError ? 'bg-red-100' : 'bg-green-100'}`}>
-                            {popup.isError ? (
-                                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            ) : (
-                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
+                        <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-green-100">
+                            <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
                         </div>
-                        <p className="text-gray-800 font-medium mb-4 text-sm leading-relaxed">{popup.message}</p>
-                        <button 
-                            onClick={() => setPopup({show: false, message: '', isError: false})}
-                            className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity active:scale-[0.98]"
-                            style={{ background: popup.isError ? '#ef4444' : PRIMARY }}
-                        >
-                            Đã hiểu
-                        </button>
+                        <h3 className="text-gray-800 font-bold mb-2">Đã copy địa chỉ!</h3>
+                        <p className="text-gray-600 mb-5 text-sm leading-relaxed">
+                            <span className="font-semibold text-gray-800">{LANDMARK}</span>
+                            <br/><br/>
+                            Vui lòng mở ứng dụng và dán vào mục điểm đến nhé!
+                        </p>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => setPopup({show: false, appType: null})}
+                                className="flex-1 py-2.5 rounded-lg text-gray-700 font-medium text-sm border border-gray-200 transition-colors hover:bg-gray-50 active:scale-[0.98]"
+                            >
+                                Đóng
+                            </button>
+                            <button 
+                                onClick={handleOpenApp}
+                                className="flex-1 py-2.5 rounded-lg text-white font-medium text-sm transition-opacity active:scale-[0.98]"
+                                style={{ background: PRIMARY }}
+                            >
+                                Mở ứng dụng
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -215,7 +213,7 @@ export default function LocationPage() {
                     {/* App logos */}
                     <div className="flex gap-2.5 mb-3">
                         <div 
-                            onClick={() => handleOpenApp('grab')}
+                            onClick={() => handleAppSelect('grab')}
                             className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
                         >
                             <img
@@ -229,7 +227,7 @@ export default function LocationPage() {
                             </div>
                         </div>
                         <div 
-                            onClick={() => handleOpenApp('greensm')}
+                            onClick={() => handleAppSelect('greensm')}
                             className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
                         >
                             <img
