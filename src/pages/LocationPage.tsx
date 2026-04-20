@@ -77,12 +77,11 @@ export default function LocationPage() {
         const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
 
         let appUrl = '';
-        let fallbackUrl = '';
+        let fallbackUrl = ''; // Dành riêng cho iOS
 
         if (app === 'grab') {
             if (isAndroid) {
-                appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;end;';
-                fallbackUrl = 'https://play.google.com/store/apps/details?id=com.grabtaxi.passenger';
+                appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.grabtaxi.passenger;end;';
             } else if (isIOS) {
                 appUrl = 'grab://open';
                 fallbackUrl = 'https://apps.apple.com/vn/app/grab/id647268330';
@@ -91,23 +90,27 @@ export default function LocationPage() {
             }
         } else if (app === 'greensm') {
             if (isAndroid) {
-                appUrl = 'intent://#Intent;package=com.gsm.customer;scheme=xanhsm;end;';
-                fallbackUrl = 'https://play.google.com/store/apps/details?id=com.gsm.customer';
+                appUrl = 'intent://#Intent;package=com.gsm.customer;scheme=xanhsm;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.gsm.customer;end;';
             } else if (isIOS) {
-                appUrl = 'xanhsm://';
+                appUrl = 'taxixanhsm://';
                 fallbackUrl = 'https://apps.apple.com/vn/app/taxi-xanh-sm/id6445525040';
             } else {
                 appUrl = 'https://www.taxixanhsm.vn/';
             }
         }
 
-        if (isAndroid || isIOS) {
+        if (isAndroid) {
+            // Android xử lý fallback cực tốt thông qua S.browser_fallback_url trong Intent
+            window.location.href = appUrl;
+            setTimeout(() => { window.close(); }, 2000); 
+        } else if (isIOS) {
+            // iOS không hỗ trợ Intent, buộc phải dùng timeout hack
             const start = Date.now();
             window.location.href = appUrl;
             
             setTimeout(() => {
                 const timeElapsed = Date.now() - start;
-                // Nếu app mở thành công, trình duyệt bị freeze nên timeElapsed sẽ lớn hơn timeout
+                // Nếu app mở thành công, web bị freeze nên timeElapsed sẽ lớn hơn timeout
                 if (timeElapsed < 2500) {
                     window.location.href = fallbackUrl;
                 } else {
