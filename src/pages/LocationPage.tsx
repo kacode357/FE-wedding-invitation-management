@@ -1,11 +1,49 @@
-import { useEffect } from 'react'; // Bỏ useState ra khỏi đây để tránh lỗi unused-vars khi build
+import { useState, useEffect } from 'react'; 
 
 const MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
+const LANDMARK = 'Cửa Hàng VLXD Năm Hạnh, Đường tỉnh 835D';
+const ADDRESS = 'HHW5+29J Cần Đước, Long An, Vietnam';
 
 export default function LocationPage() {
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+
     useEffect(() => {
-        window.location.href = MAPS_LINK;
+        // Lắng nghe sự kiện bật/tắt mạng
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        if (navigator.onLine) {
+            window.location.href = MAPS_LINK;
+        }
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
     }, []);
+
+    if (!isOnline) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ fontFamily: "'Be Vietnam Pro', sans-serif", background: '#fdf8f8' }}>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 className="text-[#800020] font-bold text-xl mb-2">Không có kết nối mạng</h2>
+                <p className="text-gray-600 mb-6 text-sm">Vui lòng kết nối Wifi/4G để tải bản đồ.</p>
+                
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 w-full max-w-sm">
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#80002099' }}>Lưu tạm địa chỉ</p>
+                    <p className="text-gray-800 font-bold mb-1 text-left">{LANDMARK}</p>
+                    <p className="text-gray-500 text-xs text-left leading-relaxed">{ADDRESS}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ fontFamily: "'Be Vietnam Pro', sans-serif", background: '#fdf8f8' }}>
