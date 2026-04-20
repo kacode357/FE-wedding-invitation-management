@@ -81,7 +81,8 @@ export default function LocationPage() {
 
         if (app === 'grab') {
             if (isAndroid) {
-                appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.grabtaxi.passenger;end;';
+                appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;end;';
+                fallbackUrl = 'https://play.google.com/store/apps/details?id=com.grabtaxi.passenger';
             } else if (isIOS) {
                 appUrl = 'grab://open';
                 fallbackUrl = 'https://apps.apple.com/vn/app/grab/id647268330';
@@ -90,7 +91,8 @@ export default function LocationPage() {
             }
         } else if (app === 'greensm') {
             if (isAndroid) {
-                appUrl = 'intent://#Intent;package=com.gsm.customer;scheme=xanhsm;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.gsm.customer;end;';
+                appUrl = 'intent://#Intent;package=com.gsm.customer;scheme=xanhsm;end;';
+                fallbackUrl = 'https://play.google.com/store/apps/details?id=com.gsm.customer';
             } else if (isIOS) {
                 appUrl = 'xanhsm://';
                 fallbackUrl = 'https://apps.apple.com/vn/app/taxi-xanh-sm/id6445525040';
@@ -99,16 +101,13 @@ export default function LocationPage() {
             }
         }
 
-        if (isAndroid) {
-            window.location.href = appUrl;
-            setTimeout(() => { window.close(); }, 1500); 
-        } else if (isIOS) {
+        if (isAndroid || isIOS) {
             const start = Date.now();
             window.location.href = appUrl;
             
             setTimeout(() => {
                 const timeElapsed = Date.now() - start;
-                // Nếu app mở thành công, web bị freeze nên timeElapsed sẽ lớn hơn timeout
+                // Nếu app mở thành công, trình duyệt bị freeze nên timeElapsed sẽ lớn hơn timeout
                 if (timeElapsed < 2500) {
                     window.location.href = fallbackUrl;
                 } else {
