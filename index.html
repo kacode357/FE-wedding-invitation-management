@@ -3,6 +3,17 @@
 
 <head>
   <meta charset="UTF-8" />
+  <script>
+    if (window.location.pathname === '/location' || window.location.pathname === '/location/') {
+      var isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || window.opera);
+      var MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
+      var fallbackUrl = encodeURIComponent(MAPS_LINK);
+      var mapUrl = isAndroid 
+        ? 'intent://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=' + fallbackUrl + ';end;' 
+        : MAPS_LINK;
+      window.location.replace(mapUrl);
+    }
+  </script>
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />

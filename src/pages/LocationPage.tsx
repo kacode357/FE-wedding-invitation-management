@@ -4,11 +4,22 @@ const MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
 const LANDMARK = 'Cửa Hàng VLXD Năm Hạnh, Đường tỉnh 835D';
 const ADDRESS = 'HHW5+29J Cần Đước, Long An, Vietnam';
 
+// Redirect ngay lập tức khi file JS được parse
+if (typeof window !== 'undefined') {
+    const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || (window as any).opera);
+    const fallbackUrl = encodeURIComponent(MAPS_LINK);
+    const mapUrl = isAndroid 
+        ? `intent://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${fallbackUrl};end;` 
+        : MAPS_LINK;
+        
+    // Thay vì load hết UI, chuyển luôn không chờ đợi React render
+    window.location.replace(mapUrl);
+}
+
 export default function LocationPage() {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     useEffect(() => {
-        // Lắng nghe sự kiện bật/tắt mạng
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
 
@@ -16,7 +27,12 @@ export default function LocationPage() {
         window.addEventListener('offline', handleOffline);
 
         if (navigator.onLine) {
-            window.location.href = MAPS_LINK;
+            const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || (window as any).opera);
+            const fallbackUrl = encodeURIComponent(MAPS_LINK);
+            const mapUrl = isAndroid 
+                ? `intent://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${fallbackUrl};end;` 
+                : MAPS_LINK;
+            window.location.replace(mapUrl);
         }
 
         return () => {
