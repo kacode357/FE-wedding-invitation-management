@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react'; // Bỏ useState ra khỏi đây để tránh lỗi unused-vars khi build
 
 const MAPS_LINK = 'https://maps.app.goo.gl/hn5Qk3ZLYiMvZQPQ7';
 
