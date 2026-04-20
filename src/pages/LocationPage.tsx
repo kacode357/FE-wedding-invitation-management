@@ -54,24 +54,77 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function LocationPage() {
+    const [popup, setPopup] = useState<{show: boolean, message: string, isError: boolean}>({show: false, message: '', isError: false});
+
     const handleOpenApp = async (app: 'grab' | 'greensm') => {
         try {
             await navigator.clipboard.writeText(LANDMARK);
-            alert('Địa chỉ đã tự copy. Vui lòng vào app để dán!');
+            setPopup({
+                show: true, 
+                message: 'Đã copy địa chỉ. Vui lòng mở app và dán vào mục điểm đến nhé!', 
+                isError: false
+            });
             
-            const scheme = app === 'grab' ? 'grab://' : 'xanhsm://';
-            const start = Date.now();
-            window.location.href = scheme;
-            
-            setTimeout(() => {
-                if (Date.now() - start < 1500) {
-                    alert('Ứng dụng chưa được cài đặt trên thiết bị của bạn!');
+            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+            const isAndroid = /android/i.test(userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+
+            let appUrl = '';
+            let fallbackUrl = '';
+
+            if (app === 'grab') {
+                if (isAndroid) {
+                    appUrl = 'intent://open#Intent;package=com.grabtaxi.passenger;scheme=grab;end;';
+                } else if (isIOS) {
+                    appUrl = 'grab://open';
+                    fallbackUrl = 'https://apps.apple.com/vn/app/grab/id647268330';
+                } else {
+                    appUrl = 'https://www.grab.com/';
                 }
-            }, 1000);
+            } else if (app === 'greensm') {
+                if (isAndroid) {
+                    appUrl = 'intent://open#Intent;package=vn.xanhsm.passenger;scheme=taxixanhsm;end;';
+                } else if (isIOS) {
+                    appUrl = 'taxixanhsm://';
+                    fallbackUrl = 'https://apps.apple.com/vn/app/taxi-xanh-sm/id6445525040';
+                } else {
+                    appUrl = 'https://www.xanhsm.com/';
+                }
+            }
+
+            if (isAndroid) {
+                // Android intent automatically redirects to Play Store if not installed
+                setTimeout(() => {
+                    window.location.href = appUrl;
+                }, 1500); 
+            } else if (isIOS) {
+                // iOS requires explicit checking to open App Store
+                setTimeout(() => {
+                    const start = Date.now();
+                    window.location.href = appUrl;
+
+                    setTimeout(() => {
+                        const timeElapsed = Date.now() - start;
+                        if (timeElapsed < 2500) {
+                            setPopup({
+                                show: true,
+                                message: 'Bạn chưa cài đặt ứng dụng. Đang chuyển đến App Store...',
+                                isError: true
+                            });
+                            setTimeout(() => {
+                                window.location.href = fallbackUrl;
+                            }, 1500);
+                        }
+                    }, 2000);
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    window.open(appUrl, '_blank');
+                }, 1500);
+            }
         } catch (error) {
             console.error('Lỗi khi copy:', error);
-            // Vẫn thử mở app nếu copy lỗi
-            const scheme = app === 'grab' ? 'grab://' : 'xanhsm://';
+            const scheme = app === 'grab' ? 'grab://open' : 'taxixanhsm://';
             window.location.href = scheme;
         }
     };
@@ -81,6 +134,32 @@ export default function LocationPage() {
             className="min-h-screen flex flex-col"
             style={{ fontFamily: "'Be Vietnam Pro', sans-serif", background: '#fdf8f8' }}
         >
+            {/* Popup Thông Báo */}
+            {popup.show && (
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl p-5 w-full max-w-sm text-center shadow-xl">
+                        <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${popup.isError ? 'bg-red-100' : 'bg-green-100'}`}>
+                            {popup.isError ? (
+                                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-gray-800 font-medium mb-4 text-sm leading-relaxed">{popup.message}</p>
+                        <button 
+                            onClick={() => setPopup({show: false, message: '', isError: false})}
+                            className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity active:scale-[0.98]"
+                            style={{ background: popup.isError ? '#ef4444' : PRIMARY }}
+                        >
+                            Đã hiểu
+                        </button>
+                    </div>
+                </div>
+            )}
             {/* ── Header ── */}
             <header className="sticky top-0 z-50" style={{ background: `linear-gradient(90deg, ${PRIMARY}, #c0003a)` }}>
                 <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-2.5">
